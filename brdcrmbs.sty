@@ -110,6 +110,21 @@
 % \cs_gset_eq:NN \ps@plain \ps@fancy
 
 \let\myhook\AtBeginShipout
+\NewDocumentCommand{\AtBeginPage}{m}{
+  % Execute the given block of code /just/ before output begins to be
+  % written.
+  \add_hook_at_begin_write_first:n { #1 }
+}
+% implement as sequence
+\seq_new:N \g_begin_page_hook_seq
+\cs_new_protected:Npn \add_hook_at_begin_write_first:n #1
+ {
+   \seq_put_left:Nn \g_begin_page_hook_seq { #1 }
+ }
+\cs_new_protected:Npn \add_hook_at_begin_write_last:n #1
+ {
+   \seq_put_right:Nn \g_begin_page_hook_seq { #1 }
+ }
 
 % Extreme kudos to egreg for the following generalization: (#122823)
 % An indispensable starting point for the entire thing.
