@@ -1,14 +1,82 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{brdcrmbs}[2013/07/06 Breadcrumbs implementation in LaTeX3]
+
 \RequirePackage{xparse}
-\RequirePackage{everypage
+\RequirePackage{everypage}
 \RequirePackage{atbegshi}
 \RequirePackage{fancyhdr}
+
+\ExplSyntaxOn
+
+% The data structure to hold the breadcrumbs
+\seq_new:N \breadcrumb_stack
+
+% a bunch of help from egreg again, 40613
+\cs_new_protected:Npn \breadcrumb_build_breadcrumb
+ {
+  % The main stack contains the most recent addition (the least
+  % significant sectioning command) at the top.  The order must be
+  % reversed in order to access the most important items first, so it
+  % can be printed out.  Through all of this, the main stack must not
+  % be persistently altered.
+
+  % Copy the breadcrumbs stack into temporary stack A and then reverse
+  % it into temporary stack B.  This kills two birds with two stones;
+  % (Ha!) while potentially a little slower (I've yet to think of a
+  % faster solution), it never touches the main stack, ensuring it
+  % isn't altered.
+  \set_seq_eq:NN \g_tmpa_seq \breadcrumb_stack
+  
+  % While stack A has items in it, pop that item and push it into
+  % stack B.  For good measure, clear stack A when we're done.
+  \bool_while_do:NN { ! \seq_if_empty:N \g_tmpa_seq }
+  {
+    \seq_pop:NN \g_tmpa_seq \l_tmpa_tl
+    \seq_push:Nn \l_tmpa_tl \g_tmpb_seq
+  }
+  \seq_clear:N \g_tmpa_seq
+
+  % Join stack B as a token list, items separated by
+  % \breadcrumb_separation_symbol
+
+  % Build the breadcrumb and place it into the input stream
+  \bool_set_false:N \l_tmpa_bool
+  \seq_map_function:NN \breadcrumb_stack \breadcrumb_build_breadcrumb_process:n
+ }
+
+% from 40613
+\cs_new_protected:Npn \breadcrumb_build_breadcrumb_process:n #1
+ {
+  \bool_if:NTF \l_tmpa_bool
+  { \l_breadcrumb_sep_tl } 
+  { \bool_set_true:N \l_tmpa_bool } 
+  \tl_if_empty:nTF { #1 } {EMPTY~ARGUMENT!} { #1 }
+  % If this is the first item in the list, this variable will be false.
+  % So if it isn't false, we need the separator
+  % and if it is, well, the next one definitely won't be first.
+  % Finally, check against if we have an empty sectioning command
+ }
+\NewDocumentCommand{\BreadcrumbSet}{m}
+ {
+  \keys_set:nn { breadcrumb } { #1 }
+ }
+\keys_define:nn { breadcrumb }
+ {
+  font .tl_set:N = \l_breadcrumb_font_tl,
+  sep  .tl_set:N = \l_breadcrumb_sep_tl,
+ }
+\keys_set:nn { breadcrumb }
+ {
+  font = \sffamily,
+  sep  = ${}~\rightarrow~{}$
+ }
 
 
 \let\myhook\AtBeginShipout
 
-% All credit to egreg for the following generalization: (#122823)
-% My only additions were the booleans and related stuff.
-\ExplSyntaxOn
+% Extreme kudos to egreg for the following generalization: (#122823)
+% An indispensable starting point for the entire thing.
+
 % Macro to insert labels at the end of other macros
 \NewDocumentCommand{\labelize}{mm}
 {
@@ -73,6 +141,8 @@
     \nameref{breadcrumb:section:\thesection}
   }
 }
+
+
 \ExplSyntaxOff
 
 
