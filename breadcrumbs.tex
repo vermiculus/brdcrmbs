@@ -1,0 +1,43 @@
+\documentclass{memoir}
+
+\let\footruleskip\relax % to let fancyhdr work with memoir
+
+\usepackage{bredcrmb}
+\usepackage[colorlinks]{hyperref}
+
+
+\pagestyle{breadcrumb}
+
+\usepackage{mwe}
+\begin{document}
+
+\part{Small Beginnings}
+\chapter{What's a Chapter?}
+\section{What's a Section?}
+\lipsum
+\section{In Conclusion}
+\Blindtext
+\chapter{Life, The Universe, and Everything}
+\section{Salmon?}
+\blindtext
+\section{Restaurants?}
+\Blindtext
+\part{Part the Second}
+\chapter{Chapter Primo}
+\section{Section A}
+\lipsum
+\section{Section B}
+\lipsum
+\chapter{Chapter Secundo}
+\section{Section A}
+\lipsum
+\section{Section B}
+\lipsum
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-PDF-mode: t 
+%%% End: 
