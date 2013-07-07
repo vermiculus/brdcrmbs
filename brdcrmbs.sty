@@ -85,16 +85,16 @@
 \myhook{\pagestyle{breadcrumb}}
 \cs_new_protected:Npn \breadcrumbs_labelize:Nn #1 #2 {
   % LaTeX3-ify
-  \expandafter \bool_new:N \cs:w in_#2 \cs_end:
+  \bool_new:c { g_breadcrumbs_in_#2 }
   \myhook{
-    \expandafter \bool_set_false:N \cs:w in_#2 \cs_end:
+    \bool_set_false:c { g_breadcrumbs_in_#2 }:
   }
 
   \cs_set_eq:cN { original_ \cs_to_str:N #1 } #1
   \RenewDocumentCommand #1 { som }
   {
     % Put page style stuff here
-    \expandafter \bool_set_true:N \cs:w in_#2 \cs_end:
+    \bool_set_true:c { g_breadcrumbs_in_#2 }
     \thispagestyle{#2:style}
     \IfBooleanTF{##1}
     {
