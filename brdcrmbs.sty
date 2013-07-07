@@ -11,6 +11,34 @@
 % The data structure to hold the breadcrumbs
 \seq_new:N \breadcrumb_stack
 
+% The current depth of the breadcrumb stack. 
+\int_new:N \g_breadcrumb_depth_int { -1 }
+
+%    Part: 0
+% Chapter: 1
+% Section: 2
+%  etc, etc.
+
+% Pushes a reference onto the stack with a depth.
+
+% 1. Receive (d_int, r_tl) from argument list
+% 2. Is \g_breadcrumb_depth_int >= d_int?
+%    T1. Pop the stack
+%    T2. Update the value of \g_breadcrumb_depth_int to be d_int
+% 3. Push the argument
+
+% \breadcrumb_stack_push { 2 } { breadcrumb:section:1 }
+\cs_new_protected:Npn \breadcrumb_stack_push:Nn #1 #2
+ {
+  \int_compare:nTG { \g_breadcrumb_depth_int >= #1 }
+   {
+    \seq_gpop:NN \breadcrumb_stack_seq \l_tmpa_tl
+    \int_set:Nn \g_breadcrumb_depth_int { #1 }
+   }
+   { }
+  \seq_gpush:Nn \breadcrumb_stack_seq { #2 }
+ }
+
 % a bunch of help from egreg again, 40613
 \cs_new_protected:Npn \breadcrumb_build_breadcrumb
  {
@@ -25,7 +53,7 @@
   % (Ha!) while potentially a little slower (I've yet to think of a
   % faster solution), it never touches the main stack, ensuring it
   % isn't altered.
-  \set_seq_eq:NN \g_tmpa_seq \breadcrumb_stack
+  \set_seq_eq:NN \g_tmpa_seq \breadcrumb_stack_seq
   
   % While stack A has items in it, pop that item and push it into
   % stack B.  For good measure, clear stack A when we're done.
@@ -41,7 +69,7 @@
 
   % Build the breadcrumb and place it into the input stream
   \bool_set_false:N \l_tmpa_bool
-  \seq_map_function:NN \breadcrumb_stack \breadcrumb_build_breadcrumb_process:n
+  \seq_map_function:NN \breadcrumb_stack_seq \breadcrumb_build_breadcrumb_process:n
  }
 
 % from 40613
@@ -56,35 +84,44 @@
   % and if it is, well, the next one definitely won't be first.
   % Finally, check against if we have an empty sectioning command
  }
+
+% TODO: SHOULD BE MULTILEVEL FOR OUTPUT ROUTINE AND OUTPUT PARAMETERS
 \NewDocumentCommand{\BreadcrumbSet}{m}
  {
   \keys_set:nn { breadcrumb } { #1 }
  }
+% font: the font of the breadcrumb
+% sep: the separator for each element
+% depth: the depth to which to output
 \keys_define:nn { breadcrumb }
  {
-  font .tl_set:N = \l_breadcrumb_font_tl,
-  sep  .tl_set:N = \l_breadcrumb_sep_tl,
+  font  .tl_set:N  = \l_breadcrumb_font_tl,
+  sep   .tl_set:N  = \l_breadcrumb_sep_tl,
+  depth .int_set:N = \l_breadcrumb_depth_int,
  }
 \keys_set:nn { breadcrumb }
  {
-  font = \sffamily,
-  sep  = ${}~\rightarrow~{}$
+  font  = \sffamily,
+  sep   = \,\textbf{\guilsinglright}\hspace{0pt}\,
+  depth = 2
  }
 
+% Will \let\ps@plain\ps@fancy
+% \cs_gset_eq:NN \ps@plain \ps@fancy
 
 \let\myhook\AtBeginShipout
 
 % Extreme kudos to egreg for the following generalization: (#122823)
 % An indispensable starting point for the entire thing.
 
+\myhook{\pagestyle{breadcrumb}}
 % Macro to insert labels at the end of other macros
+
 \NewDocumentCommand{\labelize}{mm}
 {
   \breadcrumbs_labelize:Nn #1 { #2 }
 }
-\myhook{\pagestyle{breadcrumb}}
 \cs_new_protected:Npn \breadcrumbs_labelize:Nn #1 #2 {
-  % LaTeX3-ify
   \bool_new:c { g_breadcrumbs_in_#2 }
   \myhook{
     \bool_set_false:c { g_breadcrumbs_in_#2 }:
@@ -108,40 +145,15 @@
       {
         \use:c { original_ \cs_to_str:N #1 } [##2]{##3}
       }
-      \label{#2: \use:c{the\cs_to_str:N #1} }%
+      \label{breadcrumb:#2:\use:c{the\cs_to_str:N #1}}%
     }
   }
 }
+
 % Much nicer syntax.  Thanks, egreg!
-\labelize {\part}    {breadcrumb:part}
-\labelize {\chapter} {breadcrumb:chapter}
-\labelize {\section} {breadcrumb:section}
-
-\fancypagestyle{breadcrumb:part:style}{
-  \fancyhf{}
-}
-\fancypagestyle{breadcrumb:chapter:style}{
-  \fancyhf{}
-  \chead{
-    \nameref{breadcrumb:part:\thepart}
-  }
-}
-\fancypagestyle{breadcrumb:section:style}{
-  \fancyhf{}
-  \chead{
-    \nameref{breadcrumb:part:\thepart}~$\rightarrow$~
-    \nameref{breadcrumb:chapter:\thechapter}
-  }
-}
-\fancypagestyle{breadcrumb}{
-  \fancyhf{}
-  \chead{
-    \nameref{breadcrumb:part:\thepart}~$\rightarrow$~
-    \nameref{breadcrumb:chapter:\thechapter}~$\rightarrow$~
-    \nameref{breadcrumb:section:\thesection}
-  }
-}
-
+\labelize {\part}    {part}
+\labelize {\chapter} {chapter}
+\labelize {\section} {section}
 
 \ExplSyntaxOff
 
