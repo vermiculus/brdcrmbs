@@ -5,6 +5,7 @@
 \RequirePackage{everypage}
 \RequirePackage{atbegshi}
 \RequirePackage{fancyhdr}
+\RequirePackage[fit]{truncate}
 
 \ExplSyntaxOn
 
@@ -138,7 +139,7 @@
   \chead{
     \nameref{breadcrumb:part:\thepart}~$\rightarrow$~
     \nameref{breadcrumb:chapter:\thechapter}~$\rightarrow$~
-    \nameref{breadcrumb:section:\thesection}
+    \truncate{\nameref{breadcrumb:section:\thesection}}
   }
 }
 
