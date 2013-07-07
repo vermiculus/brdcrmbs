@@ -27,6 +27,11 @@ solution to http://tex.stackexchange.com/questions/122792/, so the
 first exposition of the data I'll implement is through a header/footer
 through the `fancyhdr` package.
 
+TODO
+----
+
+* Move to DTX format
+
 ---
 
 Copyright 2013 Sean Allred
@@ -40,6 +45,6 @@ later.
 
 This work has the LPPL maintenance status `maintained'.
 
-The Current Maintainer of this work is M. Y. Name.
+The Current Maintainer of this work is Sean Allred.
 
 This work consists of the file brdcrmbs.sty.
