@@ -5,13 +5,13 @@
 %</internal>
 %<*readme>
 ----------------------------------------------------------------
-demopkg --- description text
-E-mail: you@your.domain
+brdcrmbs --- breadcrumbs for LaTeX
+E-mail: seallred@smcm.edu
 Released under the LaTeX Project Public License v1.3c or later
 See http://www.latex-project.org/lppl.txt
 ----------------------------------------------------------------
 
-Some text about the package: probably the same as the abstract.
+Breadcrumbs for LaTeX
 %</readme>
 %<*internal>
 \fi
@@ -26,8 +26,8 @@ Some text about the package: probably the same as the abstract.
 \askforoverwritefalse
 \preamble
 ----------------------------------------------------------------
-demopkg --- description text
-E-mail: you@your.domain
+brdcrmbs --- Breadcrumbs for LaTeX
+E-mail: seallred@smcm.edu
 Released under the LaTeX Project Public License v1.3c or later
 See http://www.latex-project.org/lppl.txt
 ----------------------------------------------------------------
@@ -35,7 +35,7 @@ See http://www.latex-project.org/lppl.txt
 \endpreamble
 \postamble
 
-Copyright (C) 2009 by You <you@your.domain>
+Copyright (C) 2013 by Sean Allred <seallred@smcm.edu>
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License (LPPL), either
@@ -47,25 +47,25 @@ http://www.latex-project.org/lppl.txt
 This work is "maintained" (as per LPPL maintenance status) by
 You.
 
-This work consists of the file  demopkg.dtx
-and the derived files           demopkg.ins,
-                                demopkg.pdf and
-                                demopkg.sty.
+This work consists of the file  brdcrmbs.dtx
+and the derived files           brdcrmbs.ins,
+                                brdcrmbs.pdf and
+                                brdcrmbs.sty.
 
 \endpostamble
-\usedir{tex/latex/demopkg}
+\usedir{tex/latex/brdcrmbs}
 \generate{
   \file{\jobname.sty}{\from{\jobname.dtx}{package}}
 }
 %</install>
 %<install>\endbatchfile
 %<*internal>
-\usedir{source/latex/demopkg}
+\usedir{source/latex/brdcrmbs}
 \generate{
   \file{\jobname.ins}{\from{\jobname.dtx}{install}}
 }
 \nopreamble\nopostamble
-\usedir{doc/latex/demopkg}
+\usedir{doc/latex/brdcrmbs}
 \generate{
   \file{README.txt}{\from{\jobname.dtx}{readme}}
 }
@@ -77,7 +77,7 @@ and the derived files           demopkg.ins,
 %</internal>
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{demopkg}[2009/10/06 v1.0 description text]
+\ProvidesPackage{brdcrmbs}[2013/07/01 v0.1 Breadcrumbs for LaTeX]
 %</package>
 %<*driver>
 \documentclass{ltxdoc}
@@ -85,6 +85,7 @@ and the derived files           demopkg.ins,
 \usepackage{lmodern}
 \usepackage{\jobname}
 \usepackage[numbered]{hypdoc}
+\usepackage[colorlinks]{hyperref}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -97,23 +98,38 @@ and the derived files           demopkg.ins,
 %\GetFileInfo{\jobname.sty}
 %
 %\title{^^A
-%  \textsf{demopkg} --- description text\thanks{^^A
-%    This file describes version \fileversion, last revised \filedate.^^A
+%  \textsf{brdcrmbs} --- Breadcrumbs for \LaTeX\thanks{^^A
+%    This file describes version \fileversion, last revised \filedate.
+%    Many thanks to the users of \TeX.SX, without whom this package
+%    would be just \href{http://tex.stackexchange.com/questions/122792}
+%    {a \emph{really} good question}.
 %  }^^A
 %}
 %\author{^^A
-%  You\thanks{E-mail: you@your.domain}^^A
+%  Sean Allred\thanks{E-mail: seallred@smcm.edu}^^A
 %}
 %\date{Released \filedate}
 %
 %\maketitle
 %
-%\changes{v1.0}{2009/10/06}{First public release}
+%\changes{v1.0}{2013/10/01}{First public release}
 %
-%\DescribeMacro{\examplemacro}
-% Some text about an example macro called \cs{examplemacro}, which
-% might have an optional argument \oarg{arg1} and mandatory one
-% \marg{arg2}. 
+% A breadcrumb trail (or simply breadcrumbs) is a popular navigational tool for programs and documents that have an intrinsic hierarchical structure.
+% Drawing its name from the story of Hansel~and~Gretel, a trail of breadcrumbs essentially depicts your location in the hierarchy.
+% Since nearly all \TeX-based documents are \emph{structured}, this package aims to \emph{keep track of} and \emph{summarize} this structure as the document progresses.
+% This package is designed to keep meticulous track of the structure internally, displaying this data only how and when desired.
+% Taking advantage of the seperation of content and data in \LaTeX 3, this package aims to be implementation-agnostic.
+%
+% \section{Usage}
+%\DescribeMacro{\BreadcrumbSet}
+% Some text about an example macro called \cs{BreadcrumbSet}, which might have an optional argument \oarg{arg1} and mandatory one \marg{options}.
+% \section{Expansion}
+% Since the data is maintained separately from any specific implementation, this package is easily customized to a whim.
+% However, while the end-user interface is in the style of \LaTeXe, this level of customization requires knowledge of \LaTeX 3 syntax, specifically \textsl{l3seq}.
+% \DescribeMacro{\bc\_describe\_output:Nn}
+% Arg 1 is a name for the output, Arg 2 is handler that takes the sequence \cs{g\_breadcrumb\_stack} and builds output from it.
+% \emph{While you have access to this variable, don't screw it up.}
+% I have not yet convinced myself this is even a good idea -- I may use the \cs{l} prefix and copy it over to that before giving it to you, negating loss of data.
 %
 %\StopEventually{^^A
 %  \PrintChanges
