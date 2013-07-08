@@ -139,7 +139,14 @@ and the derived files           brdcrmbs.ins,
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
-%    
+% \begin{macro}{\BCSet}
+%    \begin{macrocode}
+\NewDocumentCommand{\BCSet}{m}
+ {
+  \keys_set:n { #1 }
+ }
+%    \end{macrocode}
+% \end{macro}
 %\begin{macro}{\examplemacro}
 %\changes{v1.0}{2009/10/06}{Some change from the previous version}
 %    \begin{macrocode}
@@ -148,6 +155,181 @@ and the derived files           brdcrmbs.ins,
 }
 %    \end{macrocode}
 %\end{macro} 
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{brdcrmbs}[2013/07/06 Breadcrumbs implementation in LaTeX3]
+
+\RequirePackage{xparse}
+\RequirePackage{everypage}
+\RequirePackage{atbegshi}
+\RequirePackage{fancyhdr}
+
+\ExplSyntaxOn
+
+% The data structure to hold the breadcrumbs
+\seq_new:N \breadcrumb_stack
+
+% The current depth of the breadcrumb stack. 
+\int_new:N \g_breadcrumb_depth_int { -1 }
+
+%    Part: 0
+% Chapter: 1
+% Section: 2
+%  etc, etc.
+
+% Pushes a reference onto the stack with a depth.
+
+% 1. Receive (d_int, r_tl) from argument list
+% 2. Is \g_breadcrumb_depth_int >= d_int?
+%    T1. Pop the stack
+%    T2. Update the value of \g_breadcrumb_depth_int to be d_int
+% 3. Push the argument
+
+% \breadcrumb_stack_push { 2 } { breadcrumb:section:1 }
+\cs_new_protected:Npn \breadcrumb_stack_push:Nn #1 #2
+ {
+  \int_compare:nTG { \g_breadcrumb_depth_int >= #1 }
+   {
+    \seq_gpop:NN \breadcrumb_stack_seq \l_tmpa_tl
+    \int_set:Nn \g_breadcrumb_depth_int { #1 }
+   }
+   { }
+  \seq_gpush:Nn \breadcrumb_stack_seq { #2 }
+ }
+
+% a bunch of help from egreg again, 40613
+\cs_new_protected:Npn \breadcrumb_build_breadcrumb
+ {
+  % The main stack contains the most recent addition (the least
+  % significant sectioning command) at the top.  The order must be
+  % reversed in order to access the most important items first, so it
+  % can be printed out.  Through all of this, the main stack must not
+  % be persistently altered.
+
+  % Copy the breadcrumbs stack into temporary stack A and then reverse
+  % it into temporary stack B.  This kills two birds with two stones;
+  % (Ha!) while potentially a little slower (I've yet to think of a
+  % faster solution), it never touches the main stack, ensuring it
+  % isn't altered.
+  \set_seq_eq:NN \g_tmpa_seq \breadcrumb_stack_seq
+  
+  % While stack A has items in it, pop that item and push it into
+  % stack B.  For good measure, clear stack A when we're done.
+  \bool_while_do:NN { ! \seq_if_empty:N \g_tmpa_seq }
+  {
+    \seq_pop:NN \g_tmpa_seq \l_tmpa_tl
+    \seq_push:Nn \l_tmpa_tl \g_tmpb_seq
+  }
+  \seq_clear:N \g_tmpa_seq
+
+  % Join stack B as a token list, items separated by
+  % \breadcrumb_separation_symbol
+
+  % Build the breadcrumb and place it into the input stream
+  \bool_set_false:N \l_tmpa_bool
+  \seq_map_function:NN \breadcrumb_stack_seq \breadcrumb_build_breadcrumb_process:n
+ }
+
+% from 40613
+\cs_new_protected:Npn \breadcrumb_build_breadcrumb_process:n #1
+ {
+  \bool_if:NTF \l_tmpa_bool
+  { \l_breadcrumb_sep_tl } 
+  { \bool_set_true:N \l_tmpa_bool } 
+  \tl_if_empty:nTF { #1 } {EMPTY~ARGUMENT!} { #1 }
+  % If this is the first item in the list, this variable will be false.
+  % So if it isn't false, we need the separator
+  % and if it is, well, the next one definitely won't be first.
+  % Finally, check against if we have an empty sectioning command
+ }
+
+% TODO: SHOULD BE MULTILEVEL FOR OUTPUT ROUTINE AND OUTPUT PARAMETERS
+\NewDocumentCommand{\BreadcrumbSet}{m}
+ {
+  \keys_set:nn { breadcrumb } { #1 }
+ }
+% font: the font of the breadcrumb
+% sep: the separator for each element
+% depth: the depth to which to output
+\keys_define:nn { breadcrumb }
+ {
+  font  .tl_set:N  = \l_breadcrumb_font_tl,
+  sep   .tl_set:N  = \l_breadcrumb_sep_tl,
+  depth .int_set:N = \l_breadcrumb_depth_int,
+ }
+\keys_set:nn { breadcrumb }
+ {
+  font  = \sffamily,
+  sep   = \,\textbf{\guilsinglright}\hspace{0pt}\,
+  depth = 2
+ }
+
+% Will \let\ps@plain\ps@fancy
+% \cs_gset_eq:NN \ps@plain \ps@fancy
+
+\let\myhook\AtBeginShipout
+\NewDocumentCommand{\AtBeginPage}{m}{
+  % Execute the given block of code /just/ before output begins to be
+  % written.
+  \add_hook_at_begin_write_first:n { #1 }
+}
+% implement as sequence
+\seq_new:N \g_begin_page_hook_seq
+\cs_new_protected:Npn \add_hook_at_begin_write_first:n #1
+ {
+   \seq_put_left:Nn \g_begin_page_hook_seq { #1 }
+ }
+\cs_new_protected:Npn \add_hook_at_begin_write_last:n #1
+ {
+   \seq_put_right:Nn \g_begin_page_hook_seq { #1 }
+ }
+
+% Extreme kudos to egreg for the following generalization: (#122823)
+% An indispensable starting point for the entire thing.
+
+\myhook{\pagestyle{breadcrumb}}
+% Macro to insert labels at the end of other macros
+
+\NewDocumentCommand{\labelize}{mm}
+{
+  \breadcrumbs_labelize:Nn #1 { #2 }
+}
+\cs_new_protected:Npn \breadcrumbs_labelize:Nn #1 #2 {
+  \bool_new:c { g_breadcrumbs_in_#2 }
+  \myhook{
+    \bool_set_false:c { g_breadcrumbs_in_#2 }:
+  }
+
+  \cs_set_eq:cN { original_ \cs_to_str:N #1 } #1
+  \RenewDocumentCommand #1 { som }
+  {
+    % Put page style stuff here
+    \bool_set_true:c { g_breadcrumbs_in_#2 }
+    \thispagestyle{#2:style}
+    \IfBooleanTF{##1}
+    {
+      \use:c { original_ \cs_to_str:N #1 }*{##3}
+    }
+    {
+      \IfNoValueTF{##2}
+      {
+        \use:c { original_ \cs_to_str:N #1 } {##3}
+      }
+      {
+        \use:c { original_ \cs_to_str:N #1 } [##2]{##3}
+      }
+      \label{breadcrumb:#2:\use:c{the\cs_to_str:N #1}}%
+    }
+  }
+}
+
+% Much nicer syntax.  Thanks, egreg!
+\labelize {\part}    {part}
+\labelize {\chapter} {chapter}
+\labelize {\section} {section}
+
+\ExplSyntaxOff
+%    \end{macrocode}
 %
 %    \begin{macrocode}
 %</package>
