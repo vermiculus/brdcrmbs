@@ -77,7 +77,11 @@ and the derived files           brdcrmbs.ins,
 %</internal>
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{brdcrmbs}[2013/07/01 v0.1 Breadcrumbs for LaTeX]
+\ProvidesPackage{brdcrmbs}[2013/07/01 v0.1 Breadcrumbs implementation in LaTeX3]
+\RequirePackage{xparse}
+\RequirePackage{everypage}
+\RequirePackage{atbegshi}
+\RequirePackage{fancyhdr}
 %</package>
 %<*driver>
 \documentclass{ltxdoc}
@@ -140,6 +144,7 @@ and the derived files           brdcrmbs.ins,
 %<*package>
 %    \end{macrocode}
 % \begin{macro}{\BCSet}
+% And stuff
 %    \begin{macrocode}
 \NewDocumentCommand{\BCSet}{m}
  {
@@ -156,13 +161,7 @@ and the derived files           brdcrmbs.ins,
 %    \end{macrocode}
 %\end{macro} 
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{brdcrmbs}[2013/07/06 Breadcrumbs implementation in LaTeX3]
 
-\RequirePackage{xparse}
-\RequirePackage{everypage}
-\RequirePackage{atbegshi}
-\RequirePackage{fancyhdr}
 
 \ExplSyntaxOn
 
@@ -170,8 +169,8 @@ and the derived files           brdcrmbs.ins,
 \seq_new:N \breadcrumb_stack
 
 % The current depth of the breadcrumb stack. 
-\int_new:N \g_breadcrumb_depth_int { -1 }
-
+\int_new:N \g_breadcrumb_depth_int
+\int_set:Nn \g_breadcrumb_depth_int { -1 }
 %    Part: 0
 % Chapter: 1
 % Section: 2
@@ -260,7 +259,7 @@ and the derived files           brdcrmbs.ins,
 \keys_set:nn { breadcrumb }
  {
   font  = \sffamily,
-  sep   = \,\textbf{\guilsinglright}\hspace{0pt}\,
+  sep   = {\,\textbf{\guilsinglright}\hspace{0pt}\,},
   depth = 2
  }
 
@@ -324,9 +323,6 @@ and the derived files           brdcrmbs.ins,
 }
 
 % Much nicer syntax.  Thanks, egreg!
-\labelize {\part}    {part}
-\labelize {\chapter} {chapter}
-\labelize {\section} {section}
 
 \ExplSyntaxOff
 %    \end{macrocode}
