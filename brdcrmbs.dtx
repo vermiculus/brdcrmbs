@@ -89,7 +89,9 @@ and the derived files           brdcrmbs.ins,
 \usepackage{lmodern}
 \usepackage{\jobname}
 \usepackage[numbered]{hypdoc}
+\usepackage{amsmath}
 \usepackage[colorlinks]{hyperref}
+\let\pushedonto\to
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -110,7 +112,7 @@ and the derived files           brdcrmbs.ins,
 %  }^^A
 %}
 %\author{^^A
-%  Sean Allred\thanks{E-mail: seallred@smcm.edu}^^A
+%  Sean Allred\thanks{E-mail: \texttt{seallred@smcm.edu}}^^A
 %}
 %\date{Released \filedate}
 %
@@ -118,11 +120,25 @@ and the derived files           brdcrmbs.ins,
 %
 %\changes{v1.0}{2013/10/01}{First public release}
 %
-% A breadcrumb trail (or simply breadcrumbs) is a popular navigational tool for programs and documents that have an intrinsic hierarchical structure.
-% Drawing its name from the story of Hansel~and~Gretel, a trail of breadcrumbs essentially depicts your location in the hierarchy.
+% A bread-crumb trail (or simply bread-crumbs) is a popular navigational tool for programs and documents that have an intrinsic hierarchical structure.
+% Drawing its name from the story of Hansel~and~Gretel, a trail of bread-crumbs essentially depicts your location in the hierarchy.
 % Since nearly all \TeX-based documents are \emph{structured}, this package aims to \emph{keep track of} and \emph{summarize} this structure as the document progresses.
 % This package is designed to keep meticulous track of the structure internally, displaying this data only how and when desired.
-% Taking advantage of the seperation of content and data in \LaTeX 3, this package aims to be implementation-agnostic.
+% Taking advantage of the separation of content and data in \LaTeX3, this package aims to be mainly output-agnostic.
+%
+% \section{Functional Description}
+% This package works by maintaining a stack of the sectioning commands that apply to the content at any point in the document.
+% For each sectioning command, a weight is determined automatically by a \LaTeX3 function written by \texttt{@egreg}.
+% Upon initialization, the package creates two stacks, $R$ and $W$, that maintain a stack of references (token lists)^^A
+%   \footnote{This probably needs more explanation.  For each sectioning command, we will cause \TeX{} to automatically insert a reference \verb|\textbackslash ref{<r>}| into the input stream for \TeX{} to process.  This reference $r$ is pushed onto the stack.}
+%   and a stack of their determined weights (integers).
+% Immediately, the values \verb|minvalue| and \verb|null| are pushed onto $W$ and $R$, respectively.
+%
+% Upon each use of a sectioning command, the package determines its weight $w$ and its reference $r$.
+% Say the top of each stack is $r_0$ and $w_0$.
+% If (and only if) $w \leq w_0$, we pop both stacks $R$ and $W$ so that $r_0$ and $w_0$ are discarded.
+% Whether or not the stacks are popped, $r \pushedonto R$ and $w \pushedonto W$
+% This entire algorithm is encapsulated in a function and is hooked onto each specified sectioning command.
 %
 % \section{Usage}
 %\DescribeMacro{\BreadcrumbSet}
@@ -286,7 +302,7 @@ and the derived files           brdcrmbs.ins,
 % Extreme kudos to egreg for the following generalization: (#122823)
 % An indispensable starting point for the entire thing.
 
-\myhook{\pagestyle{breadcrumb}}
+ %\myhook{\pagestyle{breadcrumb}}
 % Macro to insert labels at the end of other macros
 
 \NewDocumentCommand{\labelize}{mm}
@@ -304,7 +320,7 @@ and the derived files           brdcrmbs.ins,
   {
     % Put page style stuff here
     \bool_set_true:c { g_breadcrumbs_in_#2 }
-    \thispagestyle{#2:style}
+ %   \thispagestyle{#2:style}
     \IfBooleanTF{##1}
     {
       \use:c { original_ \cs_to_str:N #1 }*{##3}
@@ -331,3 +347,5 @@ and the derived files           brdcrmbs.ins,
 %</package>
 %    \end{macrocode}
 %\Finale
+
+
