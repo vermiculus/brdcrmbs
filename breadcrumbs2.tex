@@ -1,0 +1,107 @@
+\documentclass{memoir}
+
+% Plan of attack:
+% 1. Create a data structure to maintain all of the levels of the heirarchy
+% 2. Use that data structure and update it at every page-out.
+%    a. Print this to the console on a debug basis.
+% ?. Create a few example page styles that use that stack
+% 4. Profit.
+
+\ExplSyntaxOn
+
+% Puts the name of the weight of the node in #1 into #2
+\cs_new:Nn \__bc_node_get_weight_name:N
+  { __c_ \cs_to_str:N #1 __bc_node_weight_int }
+
+% Sets the weight of the node in #1 to #2
+\cs_new:Nn \__bc_node_set_weight:Nn
+  {
+    \int_const:Nn
+      { \__bc_node_get_weight_name:N #1 }
+      { #2 }
+  }
+
+% Gets the weight of node #1 as an integer
+\cs_new:Nn \__bc_node_get_weight:N
+  { \use:c { \__bc_node_get_weight_name:N #1 } }
+
+
+
+% Puts the name of the name of the node in #1 into the input stream
+\cs_new:Nn \__bc_node_get_name_name:N
+  { __c_ \cs_to_str:N #1 __bc_node_name_tl }
+
+% Sets the name of the node in #1 to #2
+\cs_new:Nn \__bc_node_set_name:Nn
+  {
+    \tl_const:Nn
+      { \__bc_node_get_name_name:N #1 }
+      { #2 }
+  }
+
+% Puts the weight of node #1 into the input stream
+\cs_new:Nn \__bc_node_get_name:N
+  { \use:c { \__bc_node_get_name_name:N #1 } }
+
+% Creates a new weighted node to, presumably, be put onto the stack.
+% #1 is the return value
+% #2 is a value to push
+% #3 is an integer weight to give it
+\cs_new:Nn \__bc_node_new:Nnn
+  {
+    
+  }
+
+\seq_new:N \g_breadcrumbs_trail_seq
+
+\ExplSyntaxOff
+
+\usepackage{xparse,expl3}
+
+% Define the logical behavior
+
+
+\usepackage{mwe}
+\begin{document}
+\chapter{Introduction}
+\lipsum
+\section[Structure]{Structure of the System}
+\lipsum
+\section[Comparison]{Comparison with Other Graphics Packages}
+\lipsum
+\section{Utility Packages}
+\lipsum
+\section[How to Read]{How to Read This Manual}
+\lipsum
+\section[Acknowledgments]{Authors and Acknowledgments}
+\lipsum
+\section[Help]{Getting Help}
+\lipsum
+\part{Tutorials and Guidelines}
+\chapter[Karl's Students]{Tutorial: A Picture for Karl's Students}
+\lipsum
+\section[Problem]{Problem Statement}
+\lipsum
+\section[Setting Up]{Setting up the Environment}
+\lipsum
+\subsection[\LaTeX]{Setting up the Environment in \LaTeX}
+\lipsum
+\subsection[\TeX]{Setting up the Environment in Plain \TeX}
+\lipsum
+\subsection[Con\TeX t]{Setting up the Environment in Con\TeX t}
+\lipsum
+\section[Straight Paths]{Straight Path Construction}
+\lipsum
+\section[Curved Paths]{Curved Path Construction}
+\lipsum
+\section[Circle Paths]{Circle Path Construction}
+\lipsum
+\section[Rectangle Paths]{Rectangle Path Construction}
+\lipsum
+\end{document}
+
+% Local Variables:
+% mode: latex
+% TeX-master: t
+% TeX-PDF-mode: t
+% End:

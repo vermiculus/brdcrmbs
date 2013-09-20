@@ -120,11 +120,18 @@ and the derived files           brdcrmbs.ins,
 %
 %\changes{v1.0}{2013/10/01}{First public release}
 %
-% A bread-crumb trail (or simply bread-crumbs) is a popular navigational tool for programs and documents that have an intrinsic hierarchical structure.
-% Drawing its name from the story of Hansel~and~Gretel, a trail of bread-crumbs essentially depicts your location in the hierarchy.
-% Since nearly all \TeX-based documents are \emph{structured}, this package aims to \emph{keep track of} and \emph{summarize} this structure as the document progresses.
-% This package is designed to keep meticulous track of the structure internally, displaying this data only how and when desired.
-% Taking advantage of the separation of content and data in \LaTeX3, this package aims to be mainly output-agnostic.
+% A bread-crumb trail (or simply bread-crumbs) is
+%   a popular navigational tool for programs and documents
+%   that have an intrinsic hierarchical structure.
+% Drawing its name from the story of Hansel~and~Gretel,
+%   a trail of bread-crumbs essentially depicts your location in the hierarchy.
+% Since nearly all \TeX-based documents are \emph{structured},
+%   this package aims to \emph{keep track of} and \emph{summarize}
+%   this structure as the document progresses.
+% This package is designed to keep meticulous track of the structure internally,
+%   displaying this data only how and when desired.
+% Taking advantage of the separation of content and data in \LaTeX3,
+%   this package aims to be mainly output-agnostic.
 %
 % \section{Functional Description}
 % This package works by maintaining a stack of the sectioning commands that apply to the content at any point in the document.
@@ -142,10 +149,13 @@ and the derived files           brdcrmbs.ins,
 %
 % \section{Usage}
 %\DescribeMacro{\BreadcrumbSet}
-% Some text about an example macro called \cs{BreadcrumbSet}, which might have an optional argument \oarg{arg1} and mandatory one \marg{options}.
+% Some text about an example macro called \cs{BreadcrumbSet},
+%   which might have an optional argument \oarg{arg1} and mandatory one \marg{options}.
 % \section{Expansion}
-% Since the data is maintained separately from any specific implementation, this package is easily customized to a whim.
-% However, while the end-user interface is in the style of \LaTeXe, this level of customization requires knowledge of \LaTeX 3 syntax, specifically \textsl{l3seq}.
+% Since the data is maintained separately from any specific implementation,
+%   this package is easily customized to a whim.
+% However, while the end-user interface is in the style of \LaTeXe,
+%   this level of customization requires knowledge of \LaTeX 3 syntax, specifically \textsl{l3seq}.
 % \DescribeMacro{\bc\_describe\_output:Nn}
 % Arg 1 is a name for the output, Arg 2 is handler that takes the sequence \cs{g\_breadcrumb\_stack} and builds output from it.
 % \emph{While you have access to this variable, don't screw it up.}
@@ -215,21 +225,21 @@ and the derived files           brdcrmbs.ins,
 % a bunch of help from egreg again, 40613
 \cs_new_protected:Npn \breadcrumb_build_breadcrumb
  {
-  % The main stack contains the most recent addition (the least
-  % significant sectioning command) at the top.  The order must be
-  % reversed in order to access the most important items first, so it
-  % can be printed out.  Through all of this, the main stack must not
-  % be persistently altered.
+% The main stack contains the most recent addition (the least
+% significant sectioning command) at the top.  The order must be
+% reversed in order to access the most important items first, so it
+% can be printed out.  Through all of this, the main stack must not
+% be persistently altered.
 
-  % Copy the breadcrumbs stack into temporary stack A and then reverse
-  % it into temporary stack B.  This kills two birds with two stones;
-  % (Ha!) while potentially a little slower (I've yet to think of a
-  % faster solution), it never touches the main stack, ensuring it
-  % isn't altered.
+% Copy the breadcrumbs stack into temporary stack A and then reverse
+% it into temporary stack B.  This kills two birds with two stones;
+% (Ha!) while potentially a little slower (I've yet to think of a
+% faster solution), it never touches the main stack, ensuring it
+% isn't altered.
   \set_seq_eq:NN \g_tmpa_seq \breadcrumb_stack_seq
   
-  % While stack A has items in it, pop that item and push it into
-  % stack B.  For good measure, clear stack A when we're done.
+% While stack A has items in it, pop that item and push it into
+% stack B.  For good measure, clear stack A when we're done.
   \bool_while_do:NN { ! \seq_if_empty:N \g_tmpa_seq }
   {
     \seq_pop:NN \g_tmpa_seq \l_tmpa_tl
@@ -237,10 +247,10 @@ and the derived files           brdcrmbs.ins,
   }
   \seq_clear:N \g_tmpa_seq
 
-  % Join stack B as a token list, items separated by
-  % \breadcrumb_separation_symbol
+% Join stack B as a token list, items separated by
+% \cs{breadcrumb\_separation\_symbol}
 
-  % Build the breadcrumb and place it into the input stream
+% Build the breadcrumb and place it into the input stream
   \bool_set_false:N \l_tmpa_bool
   \seq_map_function:NN \breadcrumb_stack_seq \breadcrumb_build_breadcrumb_process:n
  }
