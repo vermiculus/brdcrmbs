@@ -9,6 +9,8 @@
 
 \ExplSyntaxOn
 
+
+
 % Puts the name of the weight of the node in #1 into #2
 \cs_new:Nn \__bc_node_get_weight_name:N
   { __c_ \cs_to_str:N #1 __bc_node_weight_int }
@@ -43,6 +45,9 @@
 \cs_new:Nn \__bc_node_get_name:N
   { \use:c { \__bc_node_get_name_name:N #1 } }
 
+% This will contain the current stack that represents the breadcrumb trail
+\seq_new:N \g_breadcrumbs_trail_seq
+
 % Creates a new weighted node to, presumably, be put onto the stack.
 % #1 is the return value
 % #2 is a value to push
@@ -51,8 +56,6 @@
   {
     
   }
-
-\seq_new:N \g_breadcrumbs_trail_seq
 
 \ExplSyntaxOff
 

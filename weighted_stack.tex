@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{expl3}
+\ExplSyntaxOn
+
+%% The weighted stack is just a stack that associates nodes with
+%% weights (or priorities, depending on how you look at it).  When a
+%% node is pushed onto the stack, it will pop all those nodes with a
+%% weight greater than or equal to its own.
+
+\cs_new:Nn \__ws_get_values:N
+  {
+    \use:c { \cs_to_str:N #1 _values_seq }
+  }
+
+\cs_new:Nn \__ws_get_weights:N
+  {
+    \use:c { \cs_to_str:N #1 _weights_seq }
+  }
+
+\cs_new:Nn \ws_new:N
+  {
+    \seq_new:N { \__ws_get_values:N  #1 }
+    \seq_new:N { \__ws_get_weights:N #1 }
+  }
+
+% Pushes #2 onto #1 with weight #3.  #3 must be an integer expression.
+\cs_new:Nn \ws_push:Nnn
+  {
+    \seq_get:NNTF
+      { \__ws_get_weights:N #1 }
+      \g_tmpa_int % put the weight into this temp variable
+      {
+        % Keep popping the stack (and updating our current weight)
+        % until either the stack is empty or the current weight is
+        % less than the one we wish to add
+        \bool_until_do:nn
+          {
+            \seq_if_empty_p:N
+            ||
+            \int_compare_p:n { \g_tmpa_int < #3 }
+          }
+          {
+            % Pop the value stack and throw it away
+            \seq_gpop:NN { \__ws_get_values:N  #1 } \l_tmpa_tl
+
+            % Pop the weight stack and throw it away
+            \seq_gpop:NN { \__ws_get_weights:N #1 } \l_tmpa_int
+
+            % Update the current weight on the stack
+            \seq_get:NN { \__ws_get_weights:N #1 } \l_tmpa_int
+
+            % And copy it into our global variable for comparison
+            \int_gset_eq:NN \g_tmpa_int \l_tmpa_int
+          }
+      } { }
+
+    % After we have removed all necessary values, push this one onto the stack
+    \seq_push:Nn
+      { \__ws_get_values:N #1 }
+      { #2 }
+    \seq_push:Nn
+      { \__ws_get_weights:N #1 }
+      { #3 }
+  }
+
+\begin{document}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
