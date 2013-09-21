@@ -7,6 +7,9 @@
 %% node is pushed onto the stack, it will pop all those nodes with a
 %% weight greater than or equal to its own.
 
+\msg_new:nnn  { l3-weighted-stack } { generic typeout }
+  { Message:~~ #1 }
+
 \cs_new:Nn \__ws_get_values:N
   {
     % using typeout *only* for quick debug purposes.
@@ -29,22 +32,37 @@
 % Pushes #2 onto #1 with weight #3.  #3 must be an integer expression.
 \cs_new:Nn \ws_push:Nnn
   {
+    \msg_info:nnn { l3-weighted-stack } { generic typeout }
+      { In~ push. }
     \seq_get:cNTF
       { \__ws_get_weights:N #1 }
       \g_tmpa_int % put the weight into this temp variable
       {
+        \msg_info:nnn { l3-weighted-stack } { generic typeout }
+          { In~ the~ loop. }
         % Keep popping the stack (and updating our current weight)
         % until either the stack is empty or the current weight is
         % less than the one we wish to add
         \bool_until_do:nn
           {
-            \seq_if_empty_p:N
+            \seq_if_empty_p:c { \__ws_get_values:N #1 }
             ||
             \int_compare_p:n { \g_tmpa_int < #3 }
           }
           {
+            \msg_info:nnn { l3-weighted-stack } { generic typeout }
+              { Popping~ the~ stack. }
+
+              
+
             % Pop the stack and throw away the value and weight
-            \__ws_gpop:NNN #1 \l_tmpa_tl \l_tmpa_int
+%            \__ws_gpop:NNN #1 \l_tmpa_tl \l_tmpa_int
+
+            % Pop the value stack and throw it away
+            \seq_gpop:nN { \__ws_get_values:N  #1 } \l_tmpa_tl
+            
+            % Pop the weight stack and throw it away
+            \seq_gpop:nN { \__ws_get_weights:N #1 } \l_tmpa_int
 
             % Update the current weight on the stack
             \seq_get:cN { \__ws_get_weights:N #1 } \l_tmpa_int
@@ -91,13 +109,20 @@ test\par
 
 \ws_new:N \l_simple_ws
 
-\ws_show:N \l_simple_ws
+\l_simple_ws
 
-\ws_push:Nnn \l_simple_ws
-  { some value }
-  { 1 }
+\cs_new:Nn \dopush:n
+{
+  \ws_push:Nnn \l_simple_ws
+    {priority~#1}
+    {#1}
+  \l_simple_ws
+  \ws_use:Nn \l_simple_ws {~and~} \par
+}
 
-% \ws_use:Nn \l_simple_ws {~and~}
+\dopush:n 1
+\dopush:n 2
+\dopush:n 3
 
 \end{document}
 
