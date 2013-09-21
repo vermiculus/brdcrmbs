@@ -9,24 +9,26 @@
 
 \cs_new:Nn \__ws_get_values:N
   {
-    \use:c { \cs_to_str:N #1 _values_seq }
+    % using typeout *only* for quick debug purposes.
+    % these will be converted to proper l3msgs.
+    \cs_to_str:N #1 _values_seq
   }
 
 \cs_new:Nn \__ws_get_weights:N
   {
-    \use:c { \cs_to_str:N #1 _weights_seq }
+    \cs_to_str:N #1 _weights_seq
   }
 
 \cs_new:Nn \ws_new:N
   {
-    \seq_new:N { \__ws_get_values:N  #1 }
-    \seq_new:N { \__ws_get_weights:N #1 }
+    \seq_new:c { \__ws_get_values:N  #1 }
+    \seq_new:c { \__ws_get_weights:N #1 }
   }
 
 % Pushes #2 onto #1 with weight #3.  #3 must be an integer expression.
 \cs_new:Nn \ws_push:Nnn
   {
-    \seq_get:NNTF
+    \seq_get:cNTF
       { \__ws_get_weights:N #1 }
       \g_tmpa_int % put the weight into this temp variable
       {
@@ -44,12 +46,13 @@
             \__ws_gpop:NNN #1 \l_tmpa_tl \l_tmpa_int
 
             % Update the current weight on the stack
-            \seq_get:NN { \__ws_get_weights:N #1 } \l_tmpa_int
+            \seq_get:cN { \__ws_get_weights:N #1 } \l_tmpa_int
 
             % And copy it into our global variable for comparison
             \int_gset_eq:NN \g_tmpa_int \l_tmpa_int
           }
       } { }
+
 
     % After we have removed all necessary values, push this one onto the stack
     \seq_push:Nn
@@ -73,16 +76,17 @@
 % prints the values in the stack to the terminal
 \cs_new:Nn \ws_show:N
   {
-    \seq_show:N { \__ws_get_values:N #1 }
+    \seq_show:c { \__ws_get_values:N #1 }
   }
 
 % places the values of the stack in the input stream
 \cs_new:Nn \ws_use:Nn
   {
-    \seq_use:N { \__ws_get_values:N #1 } { #2 }
+    \seq_use:cn { \__ws_get_values:N #1 } { #2 }
   }
 
 \begin{document}
+test\par
 
 \ws_new:N \l_simple_ws
 
@@ -92,7 +96,7 @@
   { some value }
   { 1 }
 
-\ws_use:Nn \l_simple_ws {~and~}
+% \ws_use:Nn \l_simple_ws {~and~}
 
 \end{document}
 
