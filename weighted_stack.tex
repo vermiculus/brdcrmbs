@@ -21,6 +21,7 @@
 
 \cs_new:Nn \ws_new:N
   {
+    \cs_new:Npn #1 { \ws_show:N #1 }
     \seq_new:c { \__ws_get_values:N  #1 }
     \seq_new:c { \__ws_get_weights:N #1 }
   }
@@ -55,10 +56,10 @@
 
 
     % After we have removed all necessary values, push this one onto the stack
-    \seq_push:Nn
+    \seq_push:cn
       { \__ws_get_values:N #1 }
       { #2 }
-    \seq_push:Nn
+    \seq_push:cn
       { \__ws_get_weights:N #1 }
       { #3 }
   }
