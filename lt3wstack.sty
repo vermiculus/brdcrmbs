@@ -1,0 +1,87 @@
+\RequirePackage{expl3}[2014/11/25]
+\ProvidesExplPackage
+  {lt3wstack}
+  {2015/03/01}
+  {0.1}
+  {a weighted-stack data-structure for expl3}
+
+%% The weighted stack is just a stack that associates nodes with
+%% weights (or priorities, depending on how you look at it).  When a
+%% node is pushed onto the stack, it will pop all those nodes with a
+%% weight greater than or equal to its own.
+
+% \wstack_new:N :: create new stack
+% \wstack_show:N :: output data to terminal (no weights yet)
+% \wstack_use:Nn(nn)? :: interface to \seq_use:Nn(nn)?
+% \wstack_g?push:Nnn :: (globally)? push #3 to #1 with weight=#2
+% \wstack_g?pop_to:Nn :: (globally)? pop #1 down past weight #2
+% \wstack_g?clear:N :: (globally)? clear content of stack
+
+% @todo
+%
+% The weighted stack \test_wstack contains the items (without outer braces):
+% >  (200) {hello-200}
+% >  ( 12) {hello-12}
+% >  (  2) {hello-2}
+% >  (  1) {hello-1}.
+% <recently read> }
+%                  
+% l.??? \wstack_show:N \test_wstack
+
+\cs_gset_eq:NN \wstack_new:N    \seq_new:N
+\cs_gset_eq:NN \wstack_use:Nn   \seq_use:Nn
+\cs_gset_eq:NN \wstack_use:Nnnn \seq_use:Nnnn
+\cs_gset_eq:NN \wstack_show:N   \seq_show:N
+\cs_gset_eq:NN \wstack_clear:N  \seq_clear:N
+\cs_gset_eq:NN \wstack_gclear:N \seq_gclear:N
+
+\cs_new:Npn \wstack_gpush:Nnn #1 #2 #3 {
+  \wstack_push:Nnn #1 {#2} {#3}
+  \seq_gset_eq:NN #1 #1
+}
+\cs_new:Npn \wstack_push:Nnn #1 #2 #3 {
+  \wstack_pop_to:Nn #1 {#2}
+  \seq_clear:N \l_tmpa_seq
+  \seq_push:Nn \l_tmpa_seq {#3}
+  \seq_push:Nn \l_tmpa_seq {#2}
+  \seq_push:NV #1 \l_tmpa_seq
+}
+
+\cs_new:Npn \wstack_gpop_to:Nn #1 #2 {
+  \wstack_pop_to:Nn #1 {#2}
+  \seq_gset_eq:NN #1 #1
+}
+\cs_new:Npn \wstack_pop_to:Nn #1 #2 {
+  \seq_get:NN #1 \l_tmpa_seq
+  \seq_get:NN \l_tmpa_seq \l_tmpa_tl
+  \bool_until_do:nn {
+    \quark_if_no_value_p:N \l_tmpa_tl ||
+    \int_compare_p:nNn {#2} > \l_tmpa_tl
+  }
+  {
+    \seq_pop:NN #1 \l_tmpa_seq
+    \seq_get:NN #1 \l_tmpa_seq
+    \seq_get:NN \l_tmpa_seq \l_tmpa_tl
+  }
+}
+
+%  Tests
+
+ \wstack_new:N     \test_wstack
+ \wstack_push:Nnn  \test_wstack 1 {one}
+ \wstack_push:Nnn  \test_wstack 2 {two}
+ \wstack_push:Nnn  \test_wstack 3 {three}
+ \wstack_push:Nnn  \test_wstack 4 {four}
+ \wstack_show:N    \test_wstack  % 4321
+
+ \wstack_push:Nnn  \test_wstack 2 {two-b}
+ \wstack_show:N    \test_wstack  % 21
+ \wstack_push:Nnn  \test_wstack 8 {EIGHT}
+ \wstack_show:N    \test_wstack  % 821
+{\wstack_gpush:Nnn \test_wstack 2 {two-c}}
+ \wstack_show:N    \test_wstack  % 21
+ \wstack_push:Nnn  \test_wstack {-1} {the basest}
+ \wstack_show:N    \test_wstack  % -1
+
+% to test, run `latex lt3wstack.sty'
+\tex_end:D
