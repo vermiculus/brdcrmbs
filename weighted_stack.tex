@@ -20,6 +20,25 @@
 % temporary sequence for reporting
 \seq_new:N \l_wstack_tmp_data_seq
 
+% \wstack_show:N :: output data to terminal (no weights yet)
+% \wstack_use:Nn :: interface to \seq_use:
+% \wstack_use:Nnnn :: interface to \seq_use:
+% \wstack_remove:N :: removes stack from data model
+% \wstack_clear:N :: clears content of stack
+% \wstack_new:N :: create new stack
+% \wstack_push:Nnn :: push #3 to #1 with weight=#2
+% \wstack_pop_to:Nn :: pop #1 down past weight #2
+
+% @todo
+%
+% The weighted stack \test_wstack contains the items (without outer braces):
+% >  (200) {hello-200}
+% >  ( 12) {hello-12}
+% >  (  2) {hello-2}
+% >  (  1) {hello-1}.
+% <recently read> }
+%                  
+% l.??? \wstack_show:N \test_wstack
 
 \cs_new:Npn \wstack_show:N #1 {
   \group_begin:
