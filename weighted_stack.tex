@@ -22,18 +22,24 @@
 
 
 \cs_new:Npn \wstack_show:N #1 {
+  \group_begin:
   \prop_get:NnN \g__wstack_data_prop #1 \l_wstack_tmp_data_seq
   \seq_show:N \l_wstack_tmp_data_seq
+  \group_end:
 }
 
 \cs_new:Npn \wstack_use:Nn #1 #2 {
+  \group_begin:
   \prop_get:NnN \g__wstack_data_prop #1 \l_wstack_tmp_data_seq
   \seq_use:Nn \l_wstack_tmp_data_seq {#2}
+  \group_end:
 }
 
 \cs_new:Npn \wstack_use:Nnnn #1 #2 #3 #4 {
+  \group_begin:
   \prop_get:NnN \g__wstack_data_prop #1 \l_wstack_tmp_data_seq
   \seq_use:Nnnn \l_wstack_tmp_data_seq {#2} {#3} {#4}
+  \group_end:
 }
 
 \cs_new:Npn \wstack_remove:N #1 {
@@ -53,6 +59,7 @@
 
 % \wstack_push:Nnn \stack {weight} {value}
 \cs_new:Npn \wstack_push:Nnn #1 #2 #3 {
+  \group_begin:
   \wstack_pop_to:Nn #1 {#2}
   \prop_get:NnN \g__wstack_weights_prop #1 \l_tmpa_clist
   \prop_get:NnN \g__wstack_data_prop #1 \l_tmpa_seq
@@ -60,6 +67,7 @@
   \seq_push:Nn \l_tmpa_seq {#3}
   \prop_gput:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
   \prop_gput:NnV \g__wstack_data_prop #1 \l_tmpa_seq
+  \group_end:
 }
 
 % With the appropriate weights global for #1, strip off all those
@@ -69,6 +77,7 @@
 %
 % \wstack_pop_to:Nn \stack {weight}
 \cs_new:Npn \wstack_pop_to:Nn #1 #2 {
+  \group_begin:
   \prop_get:NnN \g__wstack_weights_prop #1 \l_tmpa_clist
   \prop_get:NnN \g__wstack_data_prop #1 \l_tmpa_seq
   \clist_get:NN \l_tmpa_clist \l_tmpa_tl
@@ -82,4 +91,5 @@
   }
   \prop_gput:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
   \prop_gput:NnV \g__wstack_data_prop #1 \l_tmpa_seq
+  \group_end:
 }
