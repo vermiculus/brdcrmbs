@@ -20,10 +20,6 @@
 % temporary sequence for reporting
 \seq_new:N \l_wstack_tmp_data_seq
 
-\cs_new:Npn \__wstack_publish_changes_as_global: {
-  \prop_gset_eq:NN \g__wstack_weights_prop \g__wstack_weights_prop
-  \prop_gset_eq:NN \g__wstack_data_prop \g__wstack_data_prop
-}
 
 \cs_new:Npn \wstack_show:N #1 {
   \prop_get:NnN \g__wstack_data_prop #1 \l_wstack_tmp_data_seq
@@ -62,12 +58,8 @@
   \prop_get:NnN \g__wstack_data_prop #1 \l_tmpa_seq
   \clist_push:Nn \l_tmpa_clist {#2}
   \seq_push:Nn \l_tmpa_seq {#3}
-  \prop_put:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
-  \prop_put:NnV \g__wstack_data_prop #1 \l_tmpa_seq
-}
-\cs_new:Npn \wstack_gpush:Nnn #1 #2 #3 {
-  \wstack_push:Nnn #1 {#2} {#3}
-  \__wstack_publish_changes_as_global:
+  \prop_gput:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
+  \prop_gput:NnV \g__wstack_data_prop #1 \l_tmpa_seq
 }
 
 % With the appropriate weights global for #1, strip off all those
@@ -88,10 +80,6 @@
     \seq_pop:NN \l_tmpa_seq \l_tmpa_tl
     \clist_get:NN \l_tmpa_clist \l_tmpa_tl
   }
-  \prop_put:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
-  \prop_put:NnV \g__wstack_data_prop #1 \l_tmpa_seq
-}
-\cs_new:Npn \wstack_gpop_to:Nn #1 #2 {
-  \wstack_pop_to:Nn #1 {#2}
-  \__wstack_publish_changes_as_global:
+  \prop_gput:NnV \g__wstack_weights_prop #1 \l_tmpa_clist
+  \prop_gput:NnV \g__wstack_data_prop #1 \l_tmpa_seq
 }
